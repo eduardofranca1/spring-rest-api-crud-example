@@ -1,11 +1,5 @@
 package com.example.api.user;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +10,12 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import com.example.api.entities.User;
 import com.example.api.repositories.UserRepository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 @DataJpaTest
 public class UserRepositoryTest {
 
@@ -25,19 +25,29 @@ public class UserRepositoryTest {
     @Test
     @DisplayName("Should save a new user")
     public void should_save_a_user() {
-        User mockUser = new User.Builder().name("Dudu").email("dudu@email.com").build();
-        User user = repository.save(mockUser);
-        assertEquals(mockUser, user);
-        assertNotNull(user);
+        User mockUser = new User();
+        mockUser.setName("Dudu");
+        mockUser.setEmail("dudu@email.com");
+
+        User result = repository.save(mockUser);
+
+        assertNotNull(result);
+        assertNotNull(result.getId());
+        assertEquals(mockUser.getName(), result.getName());
+        assertEquals(mockUser.getEmail(), result.getEmail());
+        assertNotNull(result.getCreatedAt());
     }
 
     @Test
     @DisplayName("Should return a user list")
     public void should_return_a_user_list() {
-        User firstMockUser = new User.Builder().id("6bbf3430-16e9-4c9a-b97b-e96f52050d43").name("Dudu")
-                .email("dudu@email.com").build();
-        User secondMockUser = new User.Builder().id("75f0f71b-ec13-40f9-a5b9-56306d2b2b3c").name("João")
-                .email("joao@email.com").build();
+        User firstMockUser = new User();
+        firstMockUser.setName("Dudu");
+        firstMockUser.setEmail("dudu@email.com");
+
+        User secondMockUser = new User();
+        secondMockUser.setName("João");
+        secondMockUser.setEmail("joao@email.com");
 
         repository.save(firstMockUser);
         repository.save(secondMockUser);
@@ -53,9 +63,13 @@ public class UserRepositoryTest {
     @Test
     @DisplayName("Should return a user got by id")
     public void should_return_a_user_got_by_id() {
-        User mockUser = new User.Builder().name("Dudu").email("dudu@email.com").build();
+        User mockUser = new User();
+        mockUser.setName("Dudu ");
+        mockUser.setEmail("dudu@email.com");
         repository.save(mockUser);
+
         User result = repository.findById(mockUser.getId()).orElse(null);
+
         assertNotNull(result);
         assertEquals(mockUser, result);
     }
@@ -63,7 +77,9 @@ public class UserRepositoryTest {
     @Test
     @DisplayName("Should update a user")
     public void should_update_a_user() {
-        User mockUser = new User.Builder().name("Dudu").email("dudu@email.com").build();
+        User mockUser = new User();
+        mockUser.setName("Dudu ");
+        mockUser.setEmail("dudu@email.com");
         repository.save(mockUser);
 
         mockUser.setName("Name updated");
@@ -79,7 +95,9 @@ public class UserRepositoryTest {
     @Test
     @DisplayName("Should delete a user by id")
     public void should_delete_user_by_id() {
-        User mockUser = new User.Builder().name("Dudu").email("dudu@email.com").build();
+        User mockUser = new User();
+        mockUser.setName("Dudu ");
+        mockUser.setEmail("dudu@email.com");
         repository.save(mockUser);
 
         repository.deleteById(mockUser.getId());

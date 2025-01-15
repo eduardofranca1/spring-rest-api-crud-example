@@ -30,7 +30,10 @@ public class UserMapper {
     public static List<User> transformDtoToEntity(List<UserResponseDto> usersDto) {
         List<User> userList = new ArrayList<>();
         for (UserResponseDto user : usersDto) {
-            User userEntity = new User.Builder().id(user.id()).name(user.name()).email(user.email()).build();
+            User userEntity = new User();
+            userEntity.setId(user.id());
+            userEntity.setName(user.name());
+            userEntity.setEmail(user.email());
             userList.add(userEntity);
         }
         return userList;

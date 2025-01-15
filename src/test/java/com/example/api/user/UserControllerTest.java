@@ -1,6 +1,5 @@
 package com.example.api.user;
 
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,25 +10,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.api.controllers.UserController;
 import com.example.api.entities.User;
 import com.example.api.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.Collections;
+import java.util.List;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
-
-import java.util.Collections;
-import java.util.List;
 
 @WebMvcTest(controllers = UserController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -52,8 +51,14 @@ public class UserControllerTest {
         @BeforeEach
         public void init() {
                 userId = "77b98863-21fe-4b78-a52c-f4df8b82db3e";
-                userRequest = new User.Builder().name("Dudu").email("dudu@email.com").build();
-                userResponse = new User.Builder().id(userId).name("Dudu").email("dudu@email.com").build();
+                userRequest = new User();
+                userRequest.setName("Dudu");
+                userRequest.setEmail("dudu@email.com");
+
+                userResponse = new User();
+                userResponse.setId(userId);
+                userResponse.setName("Dudu");
+                userResponse.setEmail("dudu@email.com");
         }
 
         @Test
@@ -62,10 +67,10 @@ public class UserControllerTest {
                 given(userService.create(ArgumentMatchers.any())).willAnswer((invocation -> invocation.getArgument(0)));
 
                 api.perform(post("/api/user")
-                                .contentType(MediaType.APPLICATION_JSON)
+                                .contentType(APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(userRequest)))
                                 .andExpect(status().isCreated())
-                                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                                .andExpect(content().contentType(APPLICATION_JSON))
                                 .andExpect(jsonPath("$.name").value(userRequest.getName()))
                                 .andExpect(jsonPath("$.email").value(userRequest.getEmail()));
         }
@@ -78,11 +83,10 @@ public class UserControllerTest {
                 when(userService.findAll()).thenReturn(userListResponse);
 
                 api.perform(get("/api/user")
-                                .contentType(MediaType.APPLICATION_JSON))
+                                .contentType(APPLICATION_JSON))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$").isArray())
-                                .andExpect(jsonPath("$.size()",
-                                                CoreMatchers.is(userListResponse.size())));
+                                .andExpect(jsonPath("$.size()").value(userListResponse.size()));
         }
 
         @Test
@@ -91,40 +95,38 @@ public class UserControllerTest {
                 when(userService.findById(userId)).thenReturn(userResponse);
 
                 api.perform(get("/api/user/findById/" + userId)
-                                .contentType(MediaType.APPLICATION_JSON)
+                                .contentType(APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(userResponse))).andExpect(status().isOk())
-                                .andExpect(jsonPath("$.id",
-                                                CoreMatchers.is(userResponse.getId())))
-                                .andExpect(jsonPath("$.name",
-                                                CoreMatchers.is(userResponse.getName())))
-                                .andExpect(jsonPath("$.email",
-                                                CoreMatchers.is(userResponse.getEmail())));
+                                .andExpect(jsonPath("$.id").value(userResponse.getId()))
+                                .andExpect(jsonPath("$.name").value(userResponse.getName()))
+                                .andExpect(jsonPath("$.email").value(userResponse.getEmail()));
+
         }
 
         @Test
         @DisplayName("Should update a user")
         public void should_update_a_user() throws Exception {
 
-                User userUpdatedResponse = new User();
-                userUpdatedResponse.setId(userId);
-                userUpdatedResponse.setName("Eduardo");
-                userUpdatedResponse.setEmail("eduardo@email.com");
+                User updatedUserResponse = new User();
+                updatedUserResponse.setId(userId);
+                updatedUserResponse.setName("Eduardo");
+                updatedUserResponse.setEmail("eduardo@email.com");
 
-                when(userService.update(eq(userId), any(User.class))).thenReturn(userUpdatedResponse);
+                when(userService.update(eq(userId), any(User.class))).thenReturn(updatedUserResponse);
 
                 api.perform(put("/api/user/" + userId)
-                                .contentType(MediaType.APPLICATION_JSON)
+                                .contentType(APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(userRequest))).andExpect(status().isOk())
                                 .andExpect(jsonPath("$.name")
-                                                .value(userUpdatedResponse.getName()))
+                                                .value(updatedUserResponse.getName()))
                                 .andExpect(jsonPath("$.email")
-                                                .value(userUpdatedResponse.getEmail()));
+                                                .value(updatedUserResponse.getEmail()));
         }
 
         @Test
         @DisplayName("Should delete a user by id")
         public void should_delete_a_user_by_id() throws Exception {
                 api.perform(delete("/api/user/" + userId)
-                                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isNoContent());
+                                .contentType(APPLICATION_JSON)).andExpect(status().isNoContent());
         }
 }
