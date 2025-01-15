@@ -34,13 +34,13 @@ public class UserServiceTest {
     private UserService mockService;
 
     @Test
-    @DisplayName("It should create a user")
-    public void testCreateUser() {
+    @DisplayName("Should save a new user")
+    public void should_save_a_new_user() {
         User mockUser = new User.Builder().name("Dudu").email("dudu@email.com").build();
 
         when(mockRepository.save(mockUser)).thenReturn(mockUser);
 
-        User result = this.mockService.create(mockUser);
+        User result = mockService.create(mockUser);
 
         assertNotNull(result);
         assertEquals("Dudu", result.getName());
@@ -49,8 +49,8 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("It should return a user list")
-    public void testReturnUserList() {
+    @DisplayName("Should return a user list")
+    public void should_return_a_user_list() {
         User mockUser = new User.Builder().name("Dudu").email("dudu@email.com").build();
         List<User> mockUserList = new ArrayList<>();
         mockUserList.add(mockUser);
@@ -64,8 +64,8 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("It should return a user got by id")
-    public void findById() {
+    @DisplayName("Should find a user by id and return the user")
+    public void should_find_user_by_id() {
         String userId = "77b98863-21fe-4b78-a52c-f4df8b82db3e";
         User mockUser = new User.Builder().id(userId).name("Dudu").email("dudu@email.com").build();
 
@@ -74,12 +74,14 @@ public class UserServiceTest {
         User result = mockService.findById(userId);
 
         assertNotNull(result);
+        assertEquals("Dudu", result.getName());
+        assertEquals("dudu@email.com", result.getEmail());
         verify(mockRepository, times(1)).findById(userId);
     }
 
     @Test
-    @DisplayName("It should update a user")
-    public void testUpdateUser() {
+    @DisplayName("Should update a user")
+    public void should_update_user() {
         String userId = "77b98863-21fe-4b78-a52c-f4df8b82db3e";
         User mockUser = new User.Builder().id(userId).name("Dudu").email("dudu@email.com").build();
         User mockUserToUpdate = new User.Builder().id(userId).name("Update name").email("update@email.com").build();
@@ -96,7 +98,9 @@ public class UserServiceTest {
         verify(mockRepository, times(1)).findById(userId);
     }
 
-    public void testDeleteUser() {
+    @Test
+    @DisplayName("Should delete a user by id")
+    public void should_delete_user_by_id() {
         String userId = "77b98863-21fe-4b78-a52c-f4df8b82db3e";
         User mockUser = new User.Builder().id(userId).name("Dudu").email("dudu@email.com").build();
 

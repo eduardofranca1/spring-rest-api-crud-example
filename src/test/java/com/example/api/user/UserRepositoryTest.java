@@ -23,50 +23,53 @@ public class UserRepositoryTest {
     private UserRepository repository;
 
     @Test
-    @DisplayName("It should create a user")
-    public void testCreateUser() {
+    @DisplayName("Should save a new user")
+    public void should_save_a_user() {
         User mockUser = new User.Builder().name("Dudu").email("dudu@email.com").build();
-        User user = this.repository.save(mockUser);
+        User user = repository.save(mockUser);
         assertEquals(mockUser, user);
         assertNotNull(user);
     }
 
     @Test
-    @DisplayName("It should return a user list")
-    public void testReturnUserList() {
-        User firstMockUser = new User.Builder().name("Dudu").email("dudu@email.com").build();
-        User secondMockUser = new User.Builder().name("João").email("joao@email.com").build();
+    @DisplayName("Should return a user list")
+    public void should_return_a_user_list() {
+        User firstMockUser = new User.Builder().id("6bbf3430-16e9-4c9a-b97b-e96f52050d43").name("Dudu")
+                .email("dudu@email.com").build();
+        User secondMockUser = new User.Builder().id("75f0f71b-ec13-40f9-a5b9-56306d2b2b3c").name("João")
+                .email("joao@email.com").build();
 
-        this.repository.save(firstMockUser);
-        this.repository.save(secondMockUser);
+        repository.save(firstMockUser);
+        repository.save(secondMockUser);
 
-        List<User> result = this.repository.findAll();
+        List<User> result = repository.findAll();
 
         assertThat(result).hasSize(2);
         assertNotNull(result);
         assertEquals("Dudu", result.get(0).getName());
+        assertEquals("João", result.get(1).getName());
     }
 
     @Test
-    @DisplayName("It should return a user got by id")
-    public void testReturnUserGotById() {
+    @DisplayName("Should return a user got by id")
+    public void should_return_a_user_got_by_id() {
         User mockUser = new User.Builder().name("Dudu").email("dudu@email.com").build();
-        this.repository.save(mockUser);
-        User result = this.repository.findById(mockUser.getId()).orElse(null);
+        repository.save(mockUser);
+        User result = repository.findById(mockUser.getId()).orElse(null);
         assertNotNull(result);
         assertEquals(mockUser, result);
     }
 
     @Test
-    @DisplayName("It should update a user")
-    public void testUpdateUser() {
+    @DisplayName("Should update a user")
+    public void should_update_a_user() {
         User mockUser = new User.Builder().name("Dudu").email("dudu@email.com").build();
-        this.repository.save(mockUser);
+        repository.save(mockUser);
 
         mockUser.setName("Name updated");
         mockUser.setEmail("update@email.com");
 
-        User result = this.repository.save(mockUser);
+        User result = repository.save(mockUser);
 
         assertNotNull(result);
         assertEquals("Name updated", result.getName());
@@ -74,17 +77,17 @@ public class UserRepositoryTest {
     }
 
     @Test
-    @DisplayName("It should delete a user")
-    public void testDeleteUser() {
+    @DisplayName("Should delete a user by id")
+    public void should_delete_user_by_id() {
         User mockUser = new User.Builder().name("Dudu").email("dudu@email.com").build();
-        this.repository.save(mockUser);
+        repository.save(mockUser);
 
-        this.repository.deleteById(mockUser.getId());
+        repository.deleteById(mockUser.getId());
 
-        boolean result = this.repository.existsById(mockUser.getId());
-        User resultNull = this.repository.findById(mockUser.getId()).orElse(null);
+        boolean result = repository.existsById(mockUser.getId());
+        User resultNull = repository.findById(mockUser.getId()).orElse(null);
 
-        assertEquals(0, this.repository.count());
+        assertEquals(0, repository.count());
         assertFalse(result);
         assertNull(resultNull);
     }

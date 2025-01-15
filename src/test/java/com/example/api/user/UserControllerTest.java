@@ -2,6 +2,7 @@ package com.example.api.user;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -12,9 +13,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.api.controllers.UserController;
 import com.example.api.entities.User;
@@ -24,7 +26,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -36,7 +37,7 @@ import java.util.List;
 public class UserControllerTest {
 
         @Autowired
-        private MockMvc mockMvc;
+        private MockMvc api;
 
         @MockBean
         private UserService userService;
@@ -56,54 +57,53 @@ public class UserControllerTest {
         }
 
         @Test
-        public void UserController_CreateUser_ReturnUserCreated() throws Exception {
+        @DisplayName("Should save a new user")
+        public void should_save_a_new_user() throws Exception {
                 given(userService.create(ArgumentMatchers.any())).willAnswer((invocation -> invocation.getArgument(0)));
 
-                ResultActions response = mockMvc.perform(MockMvcRequestBuilders.post("/api/user")
+                api.perform(post("/api/user")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(userRequest)));
-
-                response.andExpect(MockMvcResultMatchers.status().isCreated())
-                                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(userRequest.getName()))
-                                .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(userRequest.getEmail()));
+                                .content(objectMapper.writeValueAsString(userRequest)))
+                                .andExpect(status().isCreated())
+                                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                                .andExpect(jsonPath("$.name").value(userRequest.getName()))
+                                .andExpect(jsonPath("$.email").value(userRequest.getEmail()));
         }
 
         @Test
-        public void UserController_GetUsers() throws Exception {
+        @DisplayName("Should return a user list")
+        public void should_return_a_user_list() throws Exception {
                 List<User> userListResponse = Collections.singletonList(userResponse);
 
                 when(userService.findAll()).thenReturn(userListResponse);
 
-                ResultActions response = mockMvc
-                                .perform(MockMvcRequestBuilders.get("/api/user")
-                                                .contentType(MediaType.APPLICATION_JSON));
-
-                response.andExpect(MockMvcResultMatchers.status().isOk())
-                                .andExpect(MockMvcResultMatchers.jsonPath("$").isArray())
-                                .andExpect(MockMvcResultMatchers.jsonPath("$.size()",
+                api.perform(get("/api/user")
+                                .contentType(MediaType.APPLICATION_JSON))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$").isArray())
+                                .andExpect(jsonPath("$.size()",
                                                 CoreMatchers.is(userListResponse.size())));
         }
 
         @Test
-        public void UserController_GetUserById() throws Exception {
+        @DisplayName("Should return a user got by id")
+        public void should_return_a_user_got_by_id() throws Exception {
                 when(userService.findById(userId)).thenReturn(userResponse);
 
-                ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/user/findById/" + userId)
+                api.perform(get("/api/user/findById/" + userId)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(userResponse)));
-
-                response.andExpect(MockMvcResultMatchers.status().isOk())
-                                .andExpect(MockMvcResultMatchers.jsonPath("$.id",
+                                .content(objectMapper.writeValueAsString(userResponse))).andExpect(status().isOk())
+                                .andExpect(jsonPath("$.id",
                                                 CoreMatchers.is(userResponse.getId())))
-                                .andExpect(MockMvcResultMatchers.jsonPath("$.name",
+                                .andExpect(jsonPath("$.name",
                                                 CoreMatchers.is(userResponse.getName())))
-                                .andExpect(MockMvcResultMatchers.jsonPath("$.email",
+                                .andExpect(jsonPath("$.email",
                                                 CoreMatchers.is(userResponse.getEmail())));
         }
 
         @Test
-        public void UserController_UpdateUser() throws Exception {
+        @DisplayName("Should update a user")
+        public void should_update_a_user() throws Exception {
 
                 User userUpdatedResponse = new User();
                 userUpdatedResponse.setId(userId);
@@ -112,25 +112,19 @@ public class UserControllerTest {
 
                 when(userService.update(eq(userId), any(User.class))).thenReturn(userUpdatedResponse);
 
-                ResultActions response = mockMvc.perform(MockMvcRequestBuilders.put("/api/user/" + userId)
+                api.perform(put("/api/user/" + userId)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(userRequest)));
-
-                response.andExpect(MockMvcResultMatchers.status().isOk())
-                                .andExpect(MockMvcResultMatchers.jsonPath("$.name")
+                                .content(objectMapper.writeValueAsString(userRequest))).andExpect(status().isOk())
+                                .andExpect(jsonPath("$.name")
                                                 .value(userUpdatedResponse.getName()))
-                                .andExpect(MockMvcResultMatchers.jsonPath("$.email")
+                                .andExpect(jsonPath("$.email")
                                                 .value(userUpdatedResponse.getEmail()));
         }
 
         @Test
-        public void UserController_DeleteUserById() throws Exception {
-
-                doNothing().when(userService).deleteById(userId);
-
-                ResultActions response = mockMvc.perform(MockMvcRequestBuilders.delete("/api/user/" + userId)
-                                .contentType(MediaType.APPLICATION_JSON));
-
-                response.andExpect(MockMvcResultMatchers.status().isNoContent());
+        @DisplayName("Should delete a user by id")
+        public void should_delete_a_user_by_id() throws Exception {
+                api.perform(delete("/api/user/" + userId)
+                                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isNoContent());
         }
 }

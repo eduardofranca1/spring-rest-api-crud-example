@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.api.dto.UserMapper;
@@ -18,40 +19,37 @@ public class UserController {
     private final UserService service;
 
     @Autowired
-    UserController(UserService service) {
+    public UserController(UserService service) {
         this.service = service;
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public UserResponseDto create(@RequestBody UserRequestDto userRequestDto) {
-        return UserMapper
-                .transformEntityToResponseDto(this.service.create(UserMapper.transformDtoIntoEntity(userRequestDto)));
+    public ResponseEntity<UserResponseDto> create(@RequestBody UserRequestDto userRequestDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(UserMapper
+                .transformEntityToResponseDto(service.create(UserMapper.transformDtoIntoEntity(userRequestDto))));
     }
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public List<UserResponseDto> findAll() {
-        return UserMapper.transformEntityToListResponseDto(this.service.findAll());
+    public ResponseEntity<List<UserResponseDto>> findAll() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(UserMapper.transformEntityToListResponseDto(service.findAll()));
     }
 
     @GetMapping("/findById/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public UserResponseDto findById(@PathVariable String id) {
-        return UserMapper.transformEntityToResponseDto(this.service.findById(id));
+    public ResponseEntity<UserResponseDto> findById(@PathVariable String id) {
+        return ResponseEntity.status(HttpStatus.OK).body(UserMapper.transformEntityToResponseDto(service.findById(id)));
     }
 
     @PutMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public UserResponseDto update(@PathVariable String id, @RequestBody UserRequestDto userRequestDto) {
-        return UserMapper.transformEntityToResponseDto(
-                this.service.update(id, UserMapper.transformDtoIntoEntity(userRequestDto)));
+    public ResponseEntity<UserResponseDto> update(@PathVariable String id, @RequestBody UserRequestDto userRequestDto) {
+        return ResponseEntity.status(HttpStatus.OK).body(UserMapper.transformEntityToResponseDto(
+                service.update(id, UserMapper.transformDtoIntoEntity(userRequestDto))));
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable String id) {
-        this.service.deleteById(id);
+        service.deleteById(id);
     }
 
 }
