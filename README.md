@@ -1,26 +1,51 @@
 # Spring REST API CRUD Example
 
+- [Technologies](#technologies)
 - [Features](#features)
-- [How to execute](#how-to-execute)
+- [How to run the project](#how-to-run-the-project)
 - [Run docker](#run-docker)
 
-### Features
+## Technologies
+
+- [Spring Boot](https://spring.io/projects/spring-boot)
+- [Spring Data JPA](https://spring.io/projects/spring-data-jpa)
+- [Docker](https://www.docker.com/)
+- [H2 Database](https://www.h2database.com/html/main.html)
+- For Testing
+  - [AssertJ](https://docs.spring.io/spring-framework/reference/testing/mockmvc/assertj.html)
+  - [JUnit](https://junit.org/junit5/)
+  - [Mockito](https://site.mockito.org/)
+  - [Spring Framework Test](https://docs.spring.io/spring-framework/reference/testing.html)
+
+## Features
 
 - User CRUD
+- DTO (Data Transfer Object)
 - Docker
 - Tests
   - Controller
   - Service
   - Repository
 
-### How to execute
+## How to run the project
 
-- **mvn spring-boot:run** (to start the server)
-- **mvn test** (to run the tests)
+Follow this steps to run the project
 
-### Run Docker
+1. **mvn clean install**
 
-- To run docker, execute the commands below:
+   - to build the project and download all maven dependencies
+
+2. **mvn spring-boot:run**
+
+   - to start the server
+
+3. **mvn test**
+
+   - to run the tests
+
+## Run Docker
+
+To run docker, execute the commands below:
 
 1. Execute the command to compile the project and generate .jar file
 
